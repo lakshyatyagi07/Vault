@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/lakshyatyagi/projects/SecureVault/output/User'
+relocations:     []
+...
