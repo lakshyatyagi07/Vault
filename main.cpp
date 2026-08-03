@@ -1,8 +1,8 @@
 #include <iostream>
-#include <string>
 
 #include "HomeWindow.h"
 #include "SignupWindow.h"
+#include "LoginWindow.h"
 #include "Authentication.h"
 
 using namespace std;
@@ -11,40 +11,38 @@ int main()
 {
     HomeWindow home;
     SignupWindow signup;
+    LoginWindow login;
     Authentication auth;
 
-    while (true)
+    int choice;
+
+    do
     {
         home.display();
-
-        int choice = home.getChoice();
+        choice = home.getChoice();
 
         switch (choice)
         {
         case 1:
         {
-            string email;
-            string masterPassword;
-
-            cout << "\n========== LOGIN ==========\n\n";
-
-            cin.ignore();
-
-            cout << "Enter Email: ";
-            getline(cin, email);
-
-            cout << "Enter Master Password: ";
-            getline(cin, masterPassword);
-
-            if (auth.login(email, masterPassword))
+            if (!auth.hasUser())
             {
-                cout << "\n=================================\n";
-                cout << "Welcome " << email << "!\n";
-                cout << "=================================\n";
+                cout << "\nNo account found. Please sign up first.\n\n";
+                break;
+            }
+
+            string email = login.getEmail();
+            string password = login.getMasterPassword();
+
+            if (auth.login(email, password))
+            {
+                cout << "\n==================================\n";
+                cout << "Welcome, " << auth.getUser().getName() << "!\n";
+                cout << "==================================\n";
             }
             else
             {
-                cout << "\nInvalid Email or Password.\n";
+                cout << "\nInvalid email or password.\n";
             }
 
             break;
@@ -53,24 +51,21 @@ int main()
         case 2:
         {
             User user = signup.display();
-
             auth.registerUser(user);
-
             break;
         }
 
         case 3:
         {
-            cout << "\nThank you for using Vault!\n";
-            return 0;
+            cout << "\nThank you for using Vault.\n";
+            break;
         }
 
         default:
-        {
-            cout << "\nInvalid Choice!\n";
+            cout << "\nInvalid Choice.\n";
         }
-        }
-    }
+
+    } while (choice != 3);
 
     return 0;
 }
