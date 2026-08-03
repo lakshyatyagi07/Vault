@@ -9,34 +9,36 @@ User SignupWindow::display()
 {
     string name;
     string email;
-    string masterPassword;
+    string password;
     string confirmPassword;
 
-    cout << "\n========== SIGN UP ==========\n\n";
-
-    cout << "Enter Name: ";
     cin.ignore();
+
+    cout << "\n========== Sign Up ==========\n\n";
+
+    cout << "Enter your Name: ";
     getline(cin, name);
 
-    cout << "Enter Email: ";
+    cout << "Enter your Email: ";
     getline(cin, email);
 
-    cout << "Enter Master Password: ";
-    getline(cin, masterPassword);
-
-    cout << "Confirm Master Password: ";
-    getline(cin, confirmPassword);
-
-    while (masterPassword != confirmPassword)
+    while (true)
     {
-        cout << "\nPasswords do not match.\n";
-        cout << "Confirm Master Password Again: ";
+        cout << "Enter Master Password: ";
+        getline(cin, password);
+
+        cout << "Confirm Master Password: ";
         getline(cin, confirmPassword);
+
+        if (password == confirmPassword)
+        {
+            break;
+        }
+
+        cout << "\nPasswords do not match. Try again.\n\n";
     }
 
-    cout << "\nAccount Created Successfully!\n";
+    cout << "\nAccount created successfully!\n";
 
-    User user(name, email, masterPassword);
-
-    return user;
+    return User(name, email, password);
 }
