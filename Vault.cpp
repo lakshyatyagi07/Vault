@@ -7,53 +7,89 @@ using namespace std;
 void Vault::addPassword(const PasswordEntry& entry)
 {
     passwords.push_back(entry);
+
+    cout << "\nPassword added successfully.\n";
 }
 
-void Vault::showAllPasswords() const
+void Vault::viewPasswords() const
 {
     if (passwords.empty())
     {
-        cout << "\nNo passwords stored.\n";
+        cout << "\nVault is empty.\n";
         return;
     }
 
-    cout << "\n========== STORED PASSWORDS ==========\n";
+    cout << "\n========== Saved Passwords ==========\n";
 
-    for (int i = 0; i < passwords.size(); i++)
+    for (const auto& entry : passwords)
     {
-        cout << "\nEntry " << i + 1 << endl;
-        cout << "Website : " << passwords[i].getWebsite() << endl;
-        cout << "Username: " << passwords[i].getUsername() << endl;
-        cout << "Password: " << passwords[i].getPassword() << endl;
-        cout << "Notes   : " << passwords[i].getNotes() << endl;
+        cout << "Website : " << entry.getWebsite() << endl;
+        cout << "Username: " << entry.getUsername() << endl;
+        cout << "Password: " << entry.getPassword() << endl;
+        cout << "-------------------------------------\n";
     }
 }
 
-int Vault::searchPassword(const string& website) const
+void Vault::searchPassword(const string& website) const
 {
-    for (int i = 0; i < passwords.size(); i++)
+    bool found = false;
+
+    for (const auto& entry : passwords)
     {
-        if (passwords[i].getWebsite() == website)
+        if (entry.getWebsite() == website)
         {
-            return i;
+            cout << "\nWebsite : " << entry.getWebsite() << endl;
+            cout << "Username: " << entry.getUsername() << endl;
+            cout << "Password: " << entry.getPassword() << endl;
+
+            found = true;
         }
     }
 
-    return -1;
-}
-
-void Vault::deletePassword(int index)
-{
-    if (index >= 0 && index < passwords.size())
+    if (!found)
     {
-        passwords.erase(passwords.begin() + index);
+        cout << "\nNo password found.\n";
     }
 }
 
-void Vault::editPassword(int index, const PasswordEntry& updatedEntry)
+void Vault::deletePassword(const string& website)
 {
-    if (index >= 0 && index < passwords.size())
+    for (auto it = passwords.begin(); it != passwords.end(); ++it)
     {
-        passwords[index] = updatedEntry;
+        if (it->getWebsite() == website)
+        {
+            passwords.erase(it);
+
+            cout << "\nPassword deleted successfully.\n";
+            return;
+        }
     }
+
+    cout << "\nPassword not found.\n";
+}
+
+void Vault::editPassword(const string& website)
+{
+    for (auto& entry : passwords)
+    {
+        if (entry.getWebsite() == website)
+        {
+            string username;
+            string password;
+
+            cout << "Enter new username: ";
+            getline(cin >> ws, username);
+
+            cout << "Enter new password: ";
+            getline(cin, password);
+
+            entry.setUsername(username);
+            entry.setPassword(password);
+
+            cout << "\nPassword updated successfully.\n";
+            return;
+        }
+    }
+
+    cout << "\nPassword not found.\n";
 }

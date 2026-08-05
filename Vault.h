@@ -13,11 +13,11 @@ private:
 public:
     void addPassword(const PasswordEntry& entry);
 
-    void showAllPasswords() const;
+    void viewPasswords() const;
 
-    int searchPassword(const std::string& website) const;
+    void searchPassword(const std::string& website) const;
 
-    void deletePassword(int index);
+    void deletePassword(const std::string& website);
 
-    void editPassword(int index, const PasswordEntry& updatedEntry);
+    void editPassword(const std::string& website);
 };
