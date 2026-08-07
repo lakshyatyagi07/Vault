@@ -4,6 +4,8 @@
 #include "SignupWindow.h"
 #include "LoginWindow.h"
 #include "Authentication.h"
+#include "Dashboard.h"
+#include "Vault.h"
 
 using namespace std;
 
@@ -13,6 +15,8 @@ int main()
     SignupWindow signup;
     LoginWindow login;
     Authentication auth;
+    Dashboard dashboard;
+    Vault vault;
 
     int choice;
 
@@ -27,7 +31,7 @@ int main()
         {
             if (!auth.hasUser())
             {
-                cout << "\nNo account found. Please sign up first.\n\n";
+                cout << "\nNo account found. Please sign up first.\n";
                 break;
             }
 
@@ -36,13 +40,50 @@ int main()
 
             if (auth.login(email, password))
             {
-                cout << "\n==================================\n";
-                cout << "Welcome, " << auth.getUser().getName() << "!\n";
-                cout << "==================================\n";
+                cout << "\nLogin Successful!\n";
+
+                int dashboardChoice;
+
+                do
+                {
+                    dashboard.display();
+                    dashboardChoice = dashboard.getChoice();
+
+                    switch (dashboardChoice)
+                    {
+                    case 1:
+                        cout << "\nAdd Password (Coming Next)\n";
+                        break;
+
+                    case 2:
+                        vault.viewPasswords();
+                        break;
+
+                    case 3:
+                        cout << "\nSearch Password (Coming Next)\n";
+                        break;
+
+                    case 4:
+                        cout << "\nEdit Password (Coming Next)\n";
+                        break;
+
+                    case 5:
+                        cout << "\nDelete Password (Coming Next)\n";
+                        break;
+
+                    case 6:
+                        cout << "\nLogged Out Successfully.\n";
+                        break;
+
+                    default:
+                        cout << "\nInvalid Choice.\n";
+                    }
+
+                } while (dashboardChoice != 6);
             }
             else
             {
-                cout << "\nInvalid email or password.\n";
+                cout << "\nInvalid Email or Password.\n";
             }
 
             break;
