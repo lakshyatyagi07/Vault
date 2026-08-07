@@ -16,6 +16,9 @@ public:
     void editPassword(int index);
     void deletePassword(int index);
 
+    // Reveal cleartext credentials at a specific index
+    void revealPassword(int index) const;
+
     // Additional helper getter
     const std::vector<PasswordEntry>& getPasswords() const;
 };

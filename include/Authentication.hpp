@@ -20,7 +20,7 @@ public:
                const std::string& masterPassword);
 
     // Getters
-    User getUser() const;
+    const User& getUser() const;
     bool hasUser() const;
 };
 

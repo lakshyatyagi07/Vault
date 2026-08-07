@@ -1,0 +1,16 @@
+# CMake build output
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+
+# Target executable
+/Vault
+
+# Local databases & sensitive user files
+/data/*.txt
+
+# OS-specific files
+.DS_Store
+Thumbs.db

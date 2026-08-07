@@ -1,15 +1,17 @@
-# Vault: Secure C++17 CLI Password Manager
+# Vault: Production-Grade C++17 CLI Password Manager
 
-Vault is a command-line password manager written in C++17. It allows users to securely register an account, authenticate via a master password, and manage their credentials (website, username, password, and notes) in an encrypted data file.
+Vault is a command-line password manager written in C++17. It features industry-standard security primitives (OpenSSL AES-256-GCM and PBKDF2), interactive terminal input masking, robust verification loops, and secure in-memory buffer cleansing.
 
 ---
 
-## Key Tech Stack Highlights
+## Security & Architecture Highlights
 
-- **Modern C++17 & STL**: Built on modern C++ principles using robust standard containers (`std::vector`), streams, formatting manipulators (`std::setw`, `std::left`), and algorithms.
-- **Symmetric XOR Encryption**: Vault secures stored credentials using a byte-by-byte symmetric XOR cipher with dynamic modulo key wrapping.
-- **Hex-Encoded File I/O**: Encrypted database files are hex-encoded to guarantee text file carriage return safety, null-byte resistance, and ease of cross-platform porting.
-- **Robust OOP Architecture**: Modularity is maintained by strictly decoupling data models (`User`, `PasswordEntry`), collection managers (`Vault`), persistence utilities (`FileManager`), access control (`Authentication`), and the user interface (`Dashboard`).
+- **AES-256-GCM Encryption**: Vault secures the local database (`data/vault_data.txt`) using the AES-256-GCM cryptographic cipher. Every write operation generates a random 12-byte initialization vector (IV) and a 16-byte authentication tag, ensuring confidentiality and validating data integrity on decryption.
+- **Salted PBKDF2 Key Derivation**: Encryption keys and authentication hashes are derived from the master password using PBKDF2 (`PKCS5_PBKDF2_HMAC_SHA256`) with a cryptographically secure 16-byte random salt and 100,000 iterations.
+- **Timing-Attack Resistance**: Verification of master credentials uses OpenSSL `CRYPTO_memcmp` to ensure constant-time comparisons, eliminating side-channel information leaks.
+- **In-Memory Sanitization**: Destructors for models (`User`, `PasswordEntry`) and classes (`Dashboard`, `Authentication`) explicitly zero-out sensitive password buffers using `OPENSSL_cleanse` before releasing memory.
+- **Terminal Masking**: Character echo is disabled during credential entries (utilizing `termios` on macOS/Linux and `GetConsoleMode` on Windows).
+- **Tabular & Redacted Views**: Vault lists credentials in an aligned tabular structure, masking passwords by default. An explicit "Reveal Password" action allows users to selectively decrypt and view cleartext entries.
 
 ---
 
@@ -19,12 +21,12 @@ Vault is a command-line password manager written in C++17. It allows users to se
 Vault/
 │
 ├── include/                 # Standard Header Files (.hpp)
-│   ├── User.hpp             # User credentials model
+│   ├── User.hpp             # User credentials model (with memory-cleansing)
 │   ├── PasswordEntry.hpp    # Single credential record representation
 │   ├── Vault.hpp            # Password collection class and CRUD method declarations
-│   ├── FileManager.hpp      # Cryptographic XOR and File Persistence utilities
-│   ├── Authentication.hpp   # SignUp/Login authorization manager
-│   └── Dashboard.hpp        # Interactive CLI menu loop engine
+│   ├── FileManager.hpp      # OpenSSL AES-256-GCM and PBKDF2 utilities
+│   ├── Authentication.hpp   # Hashed SignUp/Login access control
+│   └── Dashboard.hpp        # Interactive CLI menu & terminal masking engine
 │
 ├── src/                     # Implementation Source Files (.cpp)
 │   ├── User.cpp             
@@ -34,51 +36,67 @@ Vault/
 │   ├── Authentication.cpp   
 │   └── Dashboard.cpp        
 │
-├── data/                    # Storage Folder
-│   ├── user_config.txt      # Authenticated user details (auth XOR encrypted)
-│   └── vault_data.txt       # Password database file (vault XOR encrypted)
+├── data/                    # Storage Folder (Ignored by Git)
+│   ├── user_config.txt      # PBKDF2-hashed master credentials
+│   └── vault_data.txt       # AES-256-GCM encrypted database
 │
-├── CMakeLists.txt           # CMake build system config
-├── main.cpp                 # Application entry point
-├── README.md                # Project documentation
-└── LICENSE                  # Project license
+├── CMakeLists.txt           # CMake build configuration with OpenSSL linking
+├── main.cpp                 # Boot manager and memory zero-out controller
+├── .gitignore               # Excludes build logs, target binaries, and local data files
+└── README.md                # Project documentation
 ```
 
 ---
 
 ## Compilation and Run Instructions
 
-Ensure you have a C++17 compiler (`g++` or `clang++`) or `CMake` installed.
+Ensure you have OpenSSL installed (`brew install openssl` on macOS).
 
-### Option A: Standard GCC/Clang Build (Recommended)
-Compile the project directly via shell:
+### Option A: Standard GCC/Clang Build
+Compile directly while referencing the OpenSSL headers and library paths (updated for Apple Silicon macOS brew locations):
 ```bash
-g++ -std=c++17 -Iinclude main.cpp src/*.cpp -o Vault
+g++ -std=c++17 -Iinclude -I/opt/homebrew/opt/openssl@3/include \
+    main.cpp src/*.cpp \
+    -L/opt/homebrew/opt/openssl@3/lib -lcrypto -lssl \
+    -o Vault
 ```
-Launch the program:
+Launch:
 ```bash
 ./Vault
 ```
 
 ### Option B: CMake Build
-Create a build directory, configure, and build the project:
+Configure and build using the provided CMakeLists:
 ```bash
 mkdir -p build
 cd build
 cmake ..
 cmake --build .
 ```
-Launch the compiled binary:
+Launch:
 ```bash
 ./Vault
 ```
 
 ---
 
+## Removing Sensitive Files from Git Tracking
+
+If any local data configurations were previously tracked in your Git index, run the following commands to safely remove them from history **without** deleting the local files from your storage:
+
+```bash
+# 1. Untrack data files from the Git cache
+git rm --cached data/user_config.txt data/vault_data.txt
+
+# 2. Commit the changes
+git commit -m "chore: remove sensitive configuration database tracking from Git"
+```
+Vault is configured with `.gitignore` to prevent these data files from being tracked in future commits.
+
+---
+
 ## Resume Bullet Points (Tailored for CS Portfolios)
 
-Here are three high-impact resume bullet points tailored for a 3rd-year CS student portfolio:
-
-* **Developed a secure CLI Password Manager in C++17**, decoupling data models, CLI dashboard loops, and storage controllers to implement strict Object-Oriented Design principles and ensure clean separation of concerns.
-* **Engineered custom file serialization and symmetric cryptography engines** utilizing byte-level XOR encryption and hex-encoded database files to bypass platform carriage-return discrepancies and secure sensitive credential payload formats.
-* **Implemented robust bounds verification and stream handling** in C++, ensuring graceful recovery from invalid indexing vectors and buffer sanitization of standard keyboard inputs.
+* **Developed a secure CLI Password Manager in C++17** using OpenSSL (`EVP` API), protecting user databases on disk via AES-256-GCM and verify-on-decrypt integrity tags.
+* **Engineered robust access control using PBKDF2 password hashing** with 100,000 iterations and a random 16-byte salt, employing constant-time memory comparisons (`CRYPTO_memcmp`) to neutralize timing side-channel attacks.
+* **Implemented memory sanitization and anti-leak techniques** by utilizing `OPENSSL_cleanse` in class destructors to zero-out plaintext keys and sensitive variables, and built cross-platform terminal masking loops to disable character echoing.

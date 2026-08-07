@@ -14,11 +14,13 @@ public:
     User(const std::string& name,
          const std::string& email,
          const std::string& masterPassword);
+    
+    ~User(); // Destructor to cleanse sensitive memory
 
     // Getters
-    std::string getName() const;
-    std::string getEmail() const;
-    std::string getMasterPassword() const;
+    const std::string& getName() const;
+    const std::string& getEmail() const;
+    const std::string& getMasterPassword() const;
 
     // Setters
     void setName(const std::string& name);

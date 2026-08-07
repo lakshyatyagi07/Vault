@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <openssl/crypto.h>
 #include "Authentication.hpp"
 #include "FileManager.hpp"
 #include "Vault.hpp"
@@ -28,8 +29,8 @@ int main() {
         getline(cin, email);
         
         while (true) {
-            cout << "Enter Master Password: ";
-            getline(cin, password);
+            // Read master password with keyboard echoing disabled
+            password = Dashboard::getMaskedInput("Enter Master Password: ");
             if (password.empty()) {
                 cout << "Password cannot be empty. Try again.\n";
             } else {
@@ -43,8 +44,12 @@ int main() {
             masterPassword = password;
         } else {
             cerr << "Fatal Error: Sign up failed. Exiting." << endl;
+            OPENSSL_cleanse(&password[0], password.size());
             return 1;
         }
+
+        // Cleanse temporary password string from memory
+        OPENSSL_cleanse(&password[0], password.size());
     } else {
         cout << "\n[Existing master account detected]" << endl;
         string email, password;
@@ -54,8 +59,9 @@ int main() {
         while (!loggedIn) {
             cout << "Enter Email: ";
             getline(cin, email);
-            cout << "Enter Master Password: ";
-            getline(cin, password);
+            
+            // Read password with keyboard echoing disabled
+            password = Dashboard::getMaskedInput("Enter Master Password: ");
 
             if (auth.login(email, password)) {
                 cout << "\nAuthentication successful!" << endl;
@@ -64,8 +70,12 @@ int main() {
                 loggedIn = true;
             } else {
                 cout << "\nInvalid credentials. Please try again.\n" << endl;
+                OPENSSL_cleanse(&password[0], password.size());
             }
         }
+        
+        // Cleanse temporary password string from memory
+        OPENSSL_cleanse(&password[0], password.size());
     }
 
     // Load saved password entries
@@ -76,7 +86,6 @@ int main() {
     // Check and load from file using the master password as key
     if (FileManager::loadFromFile("data/vault_data.txt", loadedEntries, masterPassword)) {
         for (const auto& entry : loadedEntries) {
-            // Pass silent = true to avoid terminal spam
             vault.addPassword(entry, true);
         }
         cout << "Loaded " << loadedEntries.size() << " passwords successfully." << endl;
@@ -86,6 +95,10 @@ int main() {
 
     // Launch the interactive dashboard loop
     Dashboard dashboard(vault, masterPassword);
+    
+    // Cleanse local copy of the master password, since Dashboard constructor copied it
+    OPENSSL_cleanse(&masterPassword[0], masterPassword.size());
+    
     dashboard.run();
 
     return 0;

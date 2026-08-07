@@ -17,11 +17,13 @@ public:
                   const std::string& password,
                   const std::string& notes);
 
+    ~PasswordEntry(); // Destructor to cleanse password in memory
+
     // Getters
-    std::string getWebsite() const;
-    std::string getUsername() const;
-    std::string getPassword() const;
-    std::string getNotes() const;
+    const std::string& getWebsite() const;
+    const std::string& getUsername() const;
+    const std::string& getPassword() const;
+    const std::string& getNotes() const;
 
     // Setters
     void setWebsite(const std::string& website);

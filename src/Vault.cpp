@@ -42,11 +42,17 @@ void Vault::viewPasswords() const {
     std::cout << std::string(88, '-') << "\n";
 
     for (size_t i = 0; i < passwords.size(); ++i) {
+        // Mask passwords in the list view for security
+        std::string maskedPassword(passwords[i].getPassword().length(), '*');
+        if (maskedPassword.empty()) {
+            maskedPassword = "[None]";
+        }
+
         std::cout << std::left
                   << std::setw(8)  << i
                   << std::setw(22) << passwords[i].getWebsite()
                   << std::setw(22) << passwords[i].getUsername()
-                  << std::setw(18) << passwords[i].getPassword()
+                  << std::setw(18) << maskedPassword
                   << std::setw(20) << passwords[i].getNotes()
                   << "\n";
     }
@@ -85,11 +91,16 @@ void Vault::searchPassword(const std::string& query) const {
                 headerPrinted = true;
             }
 
+            std::string maskedPassword(passwords[i].getPassword().length(), '*');
+            if (maskedPassword.empty()) {
+                maskedPassword = "[None]";
+            }
+
             std::cout << std::left
                       << std::setw(8)  << i
                       << std::setw(22) << passwords[i].getWebsite()
                       << std::setw(22) << passwords[i].getUsername()
-                      << std::setw(18) << passwords[i].getPassword()
+                      << std::setw(18) << maskedPassword
                       << std::setw(20) << passwords[i].getNotes()
                       << "\n";
             found = true;
@@ -109,9 +120,6 @@ void Vault::editPassword(int index) {
         return;
     }
 
-    // Consume any leftover newline in the input buffer (from cin >> choice/index)
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
     std::string input;
     std::cout << "\n--- Edit Password Entry ---\n";
     std::cout << "Leave blank and press Enter to keep current values.\n\n";
@@ -130,8 +138,8 @@ void Vault::editPassword(int index) {
         passwords[index].setUsername(input);
     }
 
-    // Password
-    std::cout << "Password [" << passwords[index].getPassword() << "]: ";
+    // Password - Note: we mask current value here as well
+    std::cout << "Password [********]: ";
     std::getline(std::cin, input);
     if (!input.empty()) {
         passwords[index].setPassword(input);
@@ -155,6 +163,25 @@ void Vault::deletePassword(int index) {
 
     passwords.erase(passwords.begin() + index);
     std::cout << "\nPassword entry deleted successfully.\n";
+}
+
+void Vault::revealPassword(int index) const {
+    if (index < 0 || static_cast<size_t>(index) >= passwords.size()) {
+        std::cerr << "Error: Invalid index " << index << ". Valid range: [0, " << (passwords.size() - 1) << "]\n";
+        return;
+    }
+
+    std::cout << "\n" << std::string(45, '=') << "\n";
+    std::cout << "             REVEALED CREDENTIAL DETAIL\n";
+    std::cout << std::string(45, '=') << "\n";
+    std::cout << "Index   : " << index << "\n";
+    std::cout << "Website : " << passwords[index].getWebsite() << "\n";
+    std::cout << "Username: " << passwords[index].getUsername() << "\n";
+    std::cout << "Password: " << passwords[index].getPassword() << "\n";
+    if (!passwords[index].getNotes().empty()) {
+        std::cout << "Notes   : " << passwords[index].getNotes() << "\n";
+    }
+    std::cout << std::string(45, '=') << "\n";
 }
 
 const std::vector<PasswordEntry>& Vault::getPasswords() const {
