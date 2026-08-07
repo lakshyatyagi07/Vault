@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 
 #include "Vault.h"
 
@@ -9,6 +10,32 @@ void Vault::addPassword(const PasswordEntry& entry)
     passwords.push_back(entry);
 
     cout << "\nPassword added successfully.\n";
+}
+
+void Vault::addPasswordFromInput()
+{
+    string website;
+    string username;
+    string password;
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    cout << "\n========== Add Password ==========\n";
+
+    cout << "Website: ";
+    getline(cin, website);
+
+    cout << "Username: ";
+    getline(cin, username);
+
+    cout << "Password: ";
+    getline(cin, password);
+
+    PasswordEntry entry(website, username, password);
+
+    passwords.push_back(entry);
+
+    cout << "\nPassword saved successfully!\n";
 }
 
 void Vault::viewPasswords() const

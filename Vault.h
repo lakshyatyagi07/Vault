@@ -13,6 +13,8 @@ private:
 public:
     void addPassword(const PasswordEntry& entry);
 
+    void addPasswordFromInput();
+
     void viewPasswords() const;
 
     void searchPassword(const std::string& website) const;
