@@ -1,29 +1,92 @@
-switch (dashboardChoice)
-{
-case 1:
-    vault.addPasswordFromInput();
-    break;
+#include <iostream>
+#include <limits>
+#include <string>
+#include "Authentication.hpp"
+#include "FileManager.hpp"
+#include "Vault.hpp"
+#include "Dashboard.hpp"
 
-case 2:
-    vault.viewPasswords();
-    break;
+using namespace std;
 
-case 3:
-    cout << "\nSearch Password (Coming Soon)\n";
-    break;
+int main() {
+    Authentication auth;
+    User user;
+    string masterPassword;
 
-case 4:
-    cout << "\nEdit Password (Coming Soon)\n";
-    break;
+    cout << "=====================================" << endl;
+    cout << "          Welcome to Vault           " << endl;
+    cout << "=====================================" << endl;
 
-case 5:
-    cout << "\nDelete Password (Coming Soon)\n";
-    break;
+    if (!auth.hasUser()) {
+        cout << "\n[No existing master account found]" << endl;
+        cout << "Please Sign Up to create your Master Account." << endl;
 
-case 6:
-    cout << "\nLogged Out Successfully.\n";
-    break;
+        string name, email, password;
+        cout << "Enter Name: ";
+        getline(cin, name);
+        cout << "Enter Email: ";
+        getline(cin, email);
+        
+        while (true) {
+            cout << "Enter Master Password: ";
+            getline(cin, password);
+            if (password.empty()) {
+                cout << "Password cannot be empty. Try again.\n";
+            } else {
+                break;
+            }
+        }
 
-default:
-    cout << "\nInvalid Choice.\n";
+        if (auth.signUp(name, email, password)) {
+            cout << "\nAccount created successfully!" << endl;
+            user = auth.getUser();
+            masterPassword = password;
+        } else {
+            cerr << "Fatal Error: Sign up failed. Exiting." << endl;
+            return 1;
+        }
+    } else {
+        cout << "\n[Existing master account detected]" << endl;
+        string email, password;
+        
+        // Loop login attempts
+        bool loggedIn = false;
+        while (!loggedIn) {
+            cout << "Enter Email: ";
+            getline(cin, email);
+            cout << "Enter Master Password: ";
+            getline(cin, password);
+
+            if (auth.login(email, password)) {
+                cout << "\nAuthentication successful!" << endl;
+                user = auth.getUser();
+                masterPassword = password;
+                loggedIn = true;
+            } else {
+                cout << "\nInvalid credentials. Please try again.\n" << endl;
+            }
+        }
+    }
+
+    // Load saved password entries
+    Vault vault;
+    vector<PasswordEntry> loadedEntries;
+    cout << "Loading saved password entries..." << endl;
+    
+    // Check and load from file using the master password as key
+    if (FileManager::loadFromFile("data/vault_data.txt", loadedEntries, masterPassword)) {
+        for (const auto& entry : loadedEntries) {
+            // Pass silent = true to avoid terminal spam
+            vault.addPassword(entry, true);
+        }
+        cout << "Loaded " << loadedEntries.size() << " passwords successfully." << endl;
+    } else {
+        cout << "No existing password vault entries found or failed to load. Starting fresh." << endl;
+    }
+
+    // Launch the interactive dashboard loop
+    Dashboard dashboard(vault, masterPassword);
+    dashboard.run();
+
+    return 0;
 }

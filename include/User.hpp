@@ -1,9 +1,9 @@
-#pragma once
+#ifndef USER_HPP
+#define USER_HPP
 
 #include <string>
 
-class User
-{
+class User {
 private:
     std::string name;
     std::string email;
@@ -15,11 +15,15 @@ public:
          const std::string& email,
          const std::string& masterPassword);
 
-    void setName(const std::string& name);
-    void setEmail(const std::string& email);
-    void setMasterPassword(const std::string& masterPassword);
-
+    // Getters
     std::string getName() const;
     std::string getEmail() const;
     std::string getMasterPassword() const;
+
+    // Setters
+    void setName(const std::string& name);
+    void setEmail(const std::string& email);
+    void setMasterPassword(const std::string& masterPassword);
 };
+
+#endif // USER_HPP

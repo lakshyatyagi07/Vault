@@ -1,8 +1,7 @@
-#include "User.h"
+#include "User.hpp"
 
 // Default Constructor
-User::User()
-{
+User::User() {
     name = "";
     email = "";
     masterPassword = "";
@@ -11,41 +10,34 @@ User::User()
 // Parameterized Constructor
 User::User(const std::string& name,
            const std::string& email,
-           const std::string& masterPassword)
-{
+           const std::string& masterPassword) {
     this->name = name;
     this->email = email;
     this->masterPassword = masterPassword;
 }
 
 // Setters
-void User::setName(const std::string& name)
-{
+void User::setName(const std::string& name) {
     this->name = name;
 }
 
-void User::setEmail(const std::string& email)
-{
+void User::setEmail(const std::string& email) {
     this->email = email;
 }
 
-void User::setMasterPassword(const std::string& masterPassword)
-{
+void User::setMasterPassword(const std::string& masterPassword) {
     this->masterPassword = masterPassword;
 }
 
 // Getters
-std::string User::getName() const
-{
+std::string User::getName() const {
     return name;
 }
 
-std::string User::getEmail() const
-{
+std::string User::getEmail() const {
     return email;
 }
 
-std::string User::getMasterPassword() const
-{
+std::string User::getMasterPassword() const {
     return masterPassword;
 }
